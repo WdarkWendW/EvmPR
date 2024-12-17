@@ -1,0 +1,70 @@
+model small
+.stack 100h
+.data
+    bufferSize EQU 200
+    string db bufferSize, ?, 200 dup ('$')
+    message1 db 'Enter the line (max 200 simvolov): $'
+    message2 db 13, 10, 'line posle revesa stoki:  $'
+    message3 db 13, 10, 'end enter...$'
+    messageError db 13, 10, 'error $'
+.code
+start:
+    mov ax, @data
+    mov ds, ax
+    mov ax, 0b800h
+    mov es, ax
+
+    ; выводис сообщение о вооде строки
+    mov ah, 09h
+    lea dx, message1
+    int 21h
+
+    ; выводим строку символов
+    mov ah, 0Ah
+    lea dx, string
+    int 21h
+    
+    ; прлверяем былали ведена строка
+    mov al, byte ptr [string + 1] ; дляна ведённой строки
+    cmp al, 0
+    je errorHandler ; если  0, переход к оброботке
+
+    ; выводим сообщение два 
+    mov ah, 09h
+    lea dx, message2
+    int 21h
+
+    ; Обработка: Реверсирование строки и вывод  
+    lea si, string + 1 
+    xor cx, cx
+    mov cl, byte ptr [si] ; длина ведённой строки
+    add si, cx   
+    mov di, 210
+    mov ah, 10 
+beg:
+    std
+    lodsb
+    cld
+    stosw
+    loop beg
+
+    ; сообщение перед выходом
+    mov ah, 09h
+    lea dx, message3
+    int 21h
+
+    ; ожидание нажатия клавиши 
+    mov ah, 10h
+    int 16h
+
+    ; выход программы
+    mov ah, 4ch
+    int 21h
+    
+    errorHandler:
+    ; выводим сообщение об ошибке 
+    mov ah, 09h
+    lea dx, messageError
+    int 21h
+    jmp start ; возврат к началу для повторного ввода
+end start
