@@ -1,0 +1,88 @@
+.model small
+.stack 100h
+.data
+.code
+start:
+    mov ax, 13h
+    int 10h
+    mov ax, 0A000h
+    mov es, ax
+    mov di, 11652
+    mov al, 7
+    mov cx, 50
+    rep stosb
+    mov di, 29198
+    mov al, 7
+    mov cx, 158
+    rep stosb
+    mov di, 29670
+    mov cx, 25
+Line1:
+    mov al, 7
+    stosb
+    stosb
+    add di, 319
+    sub di, 4
+    loop Line1
+    mov di, 11970
+    mov cx, 9
+Line2:
+    mov al, 7
+    stosb
+    stosb
+    add di, 325
+    sub di, 4
+    loop Line2
+    mov di, 12020
+    mov cx, 9
+Line3:
+    mov al, 7
+    stosb
+    stosb
+    add di, 319
+    sub di, 4
+    loop Line3
+
+    mov di, 29520
+    mov cx, 25
+Line4:
+    mov al, 7
+    stosb
+    stosb
+    add di, 325
+    sub di, 4
+    loop Line4
+    mov di, 15195
+    mov cx, 70
+Line5:
+    mov al, 7
+    stosb
+    stosb
+    add di, 322
+    sub di, 4
+    loop Line5
+    mov di, 12290
+    mov cx, 55
+Line6:
+    mov al, 7
+    stosb
+    stosb
+    add di, 317
+    sub di, 0
+    loop Line6
+    mov di, 12342
+    mov cx, 53
+Line7:
+    mov al, 7
+    stosb
+    stosb
+    add di, 319
+    sub di, 0
+    loop Line7
+    xor ax, ax
+    int 16h
+    mov ax, 3
+    int 10h
+    mov ax, 4C00h
+    int 21h
+end start
