@@ -1,0 +1,88 @@
+.model tiny
+org 100h
+start:  jmp beg
+    msg_start db 'Start', 0
+    msg_error_file db 'Error', 0
+    buffer db 256, 0 ; buffer для хранения строки
+    filename db 'Res.txt', 0 ; Имя файла, который нужно открыть
+.code
+
+beg:
+
+; Установка сегмента
+    mov ax, @data
+    mov ds, ax
+
+    ; Вывод стартового сообщения
+    mov ah, 09h
+    lea dx, msg_start
+    int 21h
+    
+    ; Открытие файла
+    mov ah, 3Dh
+    lea dx, filename
+    mov al, 0 ; открыть для чтения
+    int 21h
+    jc file_open_error ; Если произошла ошибка, переходим к обработке
+    
+    ; Сохраняем дескриптор файла
+    mov bx, ax
+
+read_file_loop:
+    ; Чтение строки из файла
+    mov ah, 3Fh
+    lea dx, buffer
+    mov cx, 256 ; Максимальный размер
+    int 21h
+    jz end_reading ; Если прочитано 0, конец файла
+
+    ; Выводим строку на экран
+    mov ah, 09h
+    lea dx, buffer
+    int 21h
+
+    ; Проверяем нажатие Ctrl-C
+    call check_ctrl_c
+    cmp al, 0
+    je read_file_loop ; Если Ctrl-C не нажат, продолжаем чтение
+
+
+    ; Ожидание нажатия любой клавиши
+    mov ah, 00h
+    int 16h
+    ; Возвращаемся к чтению
+    jmp read_file_loop 
+
+end_reading:
+    ; Закрытие файла
+    mov ah, 3Eh
+    int 21h
+    ; Завершение программы
+    mov ax, 4C00h
+    int 21h
+
+file_open_error:
+    ; Обработка ошибки открытия файла
+    mov ah, 09h
+    lea dx, msg_error_file
+    int 21h
+    ; Завершение программы
+    mov ax, 4C00h
+    int 21h
+
+check_ctrl_c PROC
+    ; Проверяем нажатие клавиш
+    mov ah, 01h
+    int 21h  ; Проверяем нажатие клавиши
+    jz no_key_pressed ; Если клавиша не нажата, выходим
+    cmp al, 03h ; Проверяем комбинации 
+    jne key_pressed
+no_key_pressed:
+    mov al, 0
+    ret
+key_pressed:
+    mov al, 1
+    ret
+check_ctrl_c 
+end start
+              
